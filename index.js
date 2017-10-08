@@ -41,7 +41,7 @@ Git.Repository.open('./')
           // Give some space and show the message.
           console.log("\n    " + commit.message());  
           
-          patches.forEach((patch)=>console.log(patch.newFile().path()));
+          patches.forEach((patch)=>console.log(patch.newFile().path(), patch.oldFile().path()));
           
           return patches[0].hunks().then((hunks)=>{
             console.log('header', hunks[0].header());
