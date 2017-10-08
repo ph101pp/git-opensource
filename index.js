@@ -1,5 +1,5 @@
 const Git = require('nodegit');
-
+const Promise = require('bluebird');
 
 ///////////////////////////////////////////////////////////////////////////////
 // INPUT
@@ -9,6 +9,8 @@ const toBranch = 'test'
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
+console.log("//////////////////////////////////////////////////////////////////////////////////////");
 Git.Repository.open('./')
   .then((repo)=>repo.getBranchCommit(fromBranch))
   .then(function(firstCommitOnMaster) {
@@ -23,35 +25,39 @@ Git.Repository.open('./')
       
       commit.getDiff()
         .then((diff)=>diff[0].patches())
-        .then((patches)=>{
+        .then((patches)=>{ 
           
+          return Promise.map(patches, (patch)=>{
+            return patch.hunks()
+              .then((hunks)=>{     
+                console.log('PATCH', patch.newFile().path(), '>', patch.oldFile().path());
+                hunks.forEach((hunk)=>{
+                  console.log(hunk.header());
+                })  
+              })
+            })
+            .then(()=>{
+                              // Show the commit sha.
+                console.log("commit " + commit.sha());
           
-          // Show the commit sha.
-          console.log("commit " + commit.sha());
-    
-          // Store the author object.
-          var author = commit.author();
-    
-          // Display author information.
-          console.log("Author:\t" + author.name() + " <" + author.email() + ">");
-    
-          // Show the commit date.
-          console.log("Date:\t" + commit.date());
-    
-          // Give some space and show the message.
-          console.log("\n    " + commit.message());  
+                // Store the author object.
+                var author = commit.author();
           
-          patches.forEach((patch)=>console.log(patch.newFile().path(), patch.oldFile().path()));
+                // Display author information.
+                console.log("Author:\t" + author.name() + " <" + author.email() + ">");
           
-          return patches[0].hunks().then((hunks)=>{
-            console.log('header', hunks[0].header());
-            console.log('header length', hunks[0].headerLen());
-            console.log('new lines', hunks[0].newLines());
-            console.log('new start', hunks[0].newStart());
-            console.log('old lines', hunks[0].oldLines());
-            console.log('old start', hunks[0].oldStart());
-          })
+                // Show the commit date.
+                console.log("Date:\t" + commit.date());
           
+                // Give some space and show the message.
+                console.log("\n    " + commit.message()); 
+                
+                
+                
+                console.log("//////////////////////////////////////////////////////////////////////////");
+            });
+          
+
         });
         
         
