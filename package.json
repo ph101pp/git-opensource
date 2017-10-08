@@ -1,0 +1,11 @@
+{
+  "name": "git-opensource",
+  "version": "0.0.1",
+  "author": {
+    "name": "Philipp Adrian",
+    "email": "hello@philippadrian.com"
+  },
+  "dependencies": {
+    "nodegit": "0.20.2"
+  }
+}
