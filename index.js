@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 const spawn = require('cross-spawn');
 const split = require('split2');
 const fs = require('fs');
