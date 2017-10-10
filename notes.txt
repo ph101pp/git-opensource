@@ -1,3 +1,10 @@
+
+GIT_AUTHOR_DATE='Thu Sept 24 11:00:00 2015 -0400' 
+GIT_COMMITTER_DATE='Thu Sept 24 11:00:00 2015 -0400' 
+git commit
+
+
+
 git log --oneline --reverse -- ./|cut -d' ' -f1>../patches/list 
 c=`wc -l ../patches/list|cut -d' ' -f6`;for j in $(eval echo {1..$c});do n=`printf "%04d\n" $j` && a=`head -n $j ../patches/list|tail -1` && git log -p --pretty=email --stat -m --first-parent $a~1..$a -- >../patches/new/$n-$a.patch;done
 

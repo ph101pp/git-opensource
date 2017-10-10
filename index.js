@@ -5,7 +5,7 @@ const fs = require('fs');
 const ProgressBar = require('progress');
 const mkdirp = require('mkdirp');
 
-const patchesPATH = './patches';
+const patchesPATH = '../patches';
 const processPATH = process.cwd();
 const PATH = `${processPATH}/${patchesPATH}`;
 mkdirp.sync(PATH);
@@ -14,7 +14,7 @@ mkdirp.sync(PATH);
 const gitRevList = spawn.sync('git', ['rev-list', '--count', 'HEAD' ]);
 const commitCount = parseInt(gitRevList.stdout.toString());
 console.log('git-opensource analyzing:', commitCount, 'commits');
-const gitLog = spawn('git', ['log', '-p', '--format=email', '--full-diff', '--stat']);
+const gitLog = spawn('git', ['log', '-p', '--format=email', '--stat', '--reverse', '--binary']);
 
 let fileCounter = 0;
 let fileStream = null;
