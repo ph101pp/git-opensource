@@ -22,22 +22,26 @@ Git.Repository.open('./')
 
     // Listen for commit events from the history.
     history.on("commit", function(commit) {
-      
-      commit.getDiff()
+               
+                
+      return commit.getDiff()
         .then((diff)=>diff[0].patches())
         .then((patches)=>{ 
           
-          return Promise.map(patches, (patch)=>{
+          return Promise.mapSeries(patches, (patch, i)=>{
+            console.log(i,'PATCH ...................................................');
             return patch.hunks()
               .then((hunks)=>{     
-                console.log('PATCH', patch.newFile().path(), '>', patch.oldFile().path());
-                hunks.forEach((hunk)=>{
+                console.log('HUNK', patch.newFile().path(), '>', patch.oldFile().path());
+                return hunks.map((hunk)=>{
                   console.log(hunk.header());
                 })  
               })
             })
             .then(()=>{
-                              // Show the commit sha.
+              console.log("COMMIT...............................................................");
+
+                                    // Show the commit sha.
                 console.log("commit " + commit.sha());
           
                 // Store the author object.
@@ -52,9 +56,7 @@ Git.Repository.open('./')
                 // Give some space and show the message.
                 console.log("\n    " + commit.message()); 
                 
-                
-                
-                console.log("//////////////////////////////////////////////////////////////////////////");
+              console.log(' //////////////////////////////////////////////////////////////////////////');
             });
           
 
