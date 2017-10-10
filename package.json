@@ -6,6 +6,8 @@
     "email": "hello@philippadrian.com"
   },
   "dependencies": {
-    "cross-spawn": "5.1.0"
+    "cross-spawn": "5.1.0",
+    "progress": "2.0.0",
+    "split2": "2.2.0"
   }
 }
