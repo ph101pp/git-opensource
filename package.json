@@ -6,7 +6,6 @@
     "email": "hello@philippadrian.com"
   },
   "dependencies": {
-    "bluebird": "3.5.1",
-    "nodegit": "0.20.2"
+    "cross-spawn": "5.1.0"
   }
 }
