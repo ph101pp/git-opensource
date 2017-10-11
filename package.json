@@ -12,6 +12,6 @@
     "split2": "2.2.0"
   },
   "bin": {
-    "git-opensource": "index.js"
+    "git-opensource": "git-opensource.sh"
   }
 }
