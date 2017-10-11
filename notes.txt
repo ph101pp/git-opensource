@@ -1,8 +1,9 @@
 
-GIT_AUTHOR_DATE='Thu Sept 24 11:00:00 2015 -0400' 
-GIT_COMMITTER_DATE='Thu Sept 24 11:00:00 2015 -0400' 
-git commit
+GIT_AUTHOR_DATE='Thu Sept 24 11:00:00 2015 -0400' GIT_COMMITTER_DATE='Thu Sept 24 11:00:00 2015 -0400' git commit
 
+GIT_AUTHOR_DATE='Thu Sept 24 11:00:00 2015 -0400' GIT_COMMITTER_DATE='Thu Sept 24 11:00:00 2015 -0400' git commit -m 'Kick off'
+
+git filter-branch -f --parent-filter "sed \"s/^.{0,39}$/-p a20d7ea071e878b05d9b8a330bb31df1c222be2e/\"" --tag-name-filter cat -- --branches
 
 
 git log --oneline --reverse -- ./|cut -d' ' -f1>../patches/list 
