@@ -1,17 +1,11 @@
 #! /usr/bin/env bash
 
-# VAR=`git format-patch -1 --stdout $GIT_COMMIT|sed "s/^\+(?!\+\+\s(a|b|\/)).*$/+/"`;
-# git reset $GIT_COMMIT --hard;
-# echo "$VAR" | git apply --cache;
+GIT_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
 
-echo "$PARENT";
+if [[ $GIT_PARENT != *" "* ]]; then
+  VAR=`git format-patch -1 --stdout $GIT_COMMIT`;
 
-PARENT=$GIT_COMMIT;
-# git filter-branch --tree-filter '
+  git reset $GIT_PARENT --hard;
 
-#   c = `git format-patch -1 --stdout $GIT_COMMIT|sed "s/^\+(?!\+\+\s(a|b|\/)).*$/+/"`;
-  
-#   git reset $GIT_COMMIT;
-  
-#   c|git apply --cache' -f
-
+  echo "$VAR" | git apply --cache;
+fi
