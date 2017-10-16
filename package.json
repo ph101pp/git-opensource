@@ -6,12 +6,14 @@
     "email": "hello@philippadrian.com"
   },
   "dependencies": {
+    "commander": "2.11.0",
     "cross-spawn": "5.1.0",
     "mkdirp": "0.5.1",
     "progress": "2.0.0",
     "split2": "2.2.0"
   },
   "bin": {
-    "git-opensource": "git-opensource.sh"
+    "git-opensource": "git-opensource.sh",
+    "_git-opensource-tree-filter": "git-opensource-tree-filter.sh"
   }
 }
