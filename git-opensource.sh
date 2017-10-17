@@ -1,3 +1,3 @@
 #! /usr/bin/env bash
- 
-git filter-branch --tree-filter '_git-opensource-tree-filter' -f
+rm /tmp/log;
+git filter-branch --index-filter '_git-opensource-tree-filter' --commit-filter 'git commit-tree "$@" | tee /tmp/log' -f

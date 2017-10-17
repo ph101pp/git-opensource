@@ -1,28 +1,28 @@
 #! /usr/bin/env bash
 
-GIT_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
+# GIT_OLD_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
 
+GIT_NEW_PARENT=`cat /tmp/log`;
+LINE_CONTENT=" ";
 
-if [[ $GIT_PARENT != *" "* ]]; then
+# echo "Parents: $GIT_OLD_PARENT >>>>>> $GIT_NEW_PARENT";
 
-  # PATCH=`git format-patch -1 --stdout $GIT_COMMIT`;
-  # PATCH=`git format-patch -1 --stdout $GIT_COMMIT|sed -e 's/^\+(?!\+\+\s(a|b|\/)).*$/\+/g'`;
-  PATCH=`git format-patch -1 --stdout $GIT_COMMIT|perl -ne "s/^\+(?!\+\+\s(a|b|\/)).*$/\+/gm; print;"|perl -ne "s/^\-(?!\-\-\s(a|b|\/)).*$/\-/gm; print;"`;
-  # PATCH=`git diff $GIT_PARENT...$GIT_COMMIT|perl -ne "s/^\+(?!\+\+\s(a|b|\/)).*$/\+/gm; print;"|perl -ne "s/^\-(?!\-\-\s(a|b|\/)).*$/\-/gm; print;"`;
+if [[ $GIT_NEW_PARENT != *" "* ]]; then
 
-  echo "$PATCH";
-  if [[ $GIT_PARENT == "" ]]; then  
+  if [[ $GIT_NEW_PARENT == "" ]]; then  
+    PATCH=`git format-patch -1 --stdout $GIT_COMMIT`;
     git rm -rf "./";
   else 
-    git reset $GIT_PARENT --hard;
+    # PATCH=`git format-patch -1 --stdout $GIT_NEW_PARENT..$GIT_COMMIT|perl -ne "s/^\+(?!\+\+\s(a|b|\/)).*$/\+/gm; print;"`;
+    PATCH=`git diff --patch --minimal $GIT_NEW_PARENT..$GIT_COMMIT`;
+    git reset $GIT_NEW_PARENT --hard;
   fi 
+  # echo "$PATCH";
 
-  # git clean -f;
+  PATCHED=`echo "$PATCH"|perl -ne "s/^\+(?!\+\+\s(a|b|\/)).*$/\+$LINE_CONTENT/gm; print;"`;
 
-  echo "$PATCH"|git apply;
-
-  git update-index --refresh;
+  echo "$PATCHED"|git apply --index;
 
 else 
-  echo "Parent $GIT_PARENT";
+  echo "Parent $GIT_NEW_PARENT";
 fi
