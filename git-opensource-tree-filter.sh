@@ -1,10 +1,4 @@
 #! /usr/bin/env bash
-GIT_OLD_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
-GIT_NEW_PARENT=`cat /tmp/log 2> /dev/null`;
-NEW_LINE_CONTENT="test";
-
-# echo "Parents: $GIT_OLD_PARENT >>>>>> $GIT_NEW_PARENT";
-
 ###############################################################################
 
 function rewritePatch(){
@@ -100,6 +94,8 @@ function rewritePatch(){
 
 ###############################################################################
 
+GIT_OLD_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
+
 # if not merge commit - continue
 if [[ $GIT_OLD_PARENT != *" "* ]]; then
 
@@ -107,11 +103,12 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
   if [[ $GIT_OLD_PARENT == "" ]]; then  
     PATCH=`git format-patch -1 --stdout $GIT_COMMIT`;
     git rm -r --force --quiet "./";
-  
+
   # if commit has parent
   else 
+    GIT_NEW_PARENT=`grep "$GIT_OLD_PARENT," /tmp/log | cut -d, -f2`;
     PATCH=`git diff --patch $GIT_OLD_PARENT..$GIT_COMMIT`;
-    git reset $GIT_NEW_PARENT --hard;
+    git reset $GIT_NEW_PARENT --hard --quiet;
     git checkout $GIT_NEW_PARENT .
   fi 
   git clean --force --quiet;
@@ -119,12 +116,13 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
   PATCHED=`echo "$PATCH"|rewritePatch`;
   
  
-  echo "$PATCHED";
+  # echo "$PATCHED";
 #  echo "$PATCH";
 
- echo "$PATCHED"|git apply --index --whitespace 'nowarn' --inaccurate-eof;
+ echo "$PATCHED"|git apply --index --whitespace 'nowarn';
 
 # if merge commit - do nothing
 else 
-  echo "Parent $GIT_NEW_PARENT";
+  git clean --force --quiet;
+  # git update-index --really-refresh;
 fi
