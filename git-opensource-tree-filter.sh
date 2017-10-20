@@ -111,6 +111,7 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
     git reset $GIT_NEW_PARENT --hard --quiet;
     git checkout $GIT_NEW_PARENT .
   fi 
+
   git clean --force --quiet;
 
   PATCHED=`echo "$PATCH"|rewritePatch`;
@@ -123,6 +124,19 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
 
 # if merge commit - do nothing
 else 
-  git clean --force --quiet;
+  PARENTS="";
+  for COMMIT in $(echo "${GIT_OLD_PARENT}"); do
+    NEW_COMMIT=$(grep "$COMMIT," /tmp/log | cut -d, -f2);
+    PARENTS="$PARENTS$NEW_COMMIT ";
+  done
+
+  IFS=' ' read -r BASE COMMITS <<< "$PARENTS";
+
+  git reset $BASE --hard --quiet;
+  git checkout $BASE .
+
+  git merge --no-commit --strategy "recursive" -X "ours" $COMMITS;
+
+  # git clean --force --quiet;
   # git update-index --really-refresh;
 fi
