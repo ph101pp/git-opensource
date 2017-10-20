@@ -15,7 +15,7 @@ function rewritePatch(){
   A=0; #additions count
   OLD_LINES=();
   REWRITTEN=0;
-  while read LINE; do 
+  while read -r LINE; do 
 
     ## if a new diff starts and were pre @@ hunk statements so no need to replace each line
     if [[ $LINE == "diff"* ]]; then
@@ -55,22 +55,29 @@ function rewritePatch(){
       REWRITTEN=1;
 
       if [[ $LINE =~ (^\+.*) ]]; then  
-        echo "+$(($HUNK_START + $A)): $GIT_COMMIT";
+        echo "+$(($HUNK_START + $A)): $LINE";
         ((A++));
       else
         if [[ $LINE =~ (^-.*) ]]; then
           echo "-${OLD_LINES[D]}";
           ((D++));
-        elif [[ $D < ${#OLD_LINES[@]} ]]; then
-          echo " ${OLD_LINES[D]}";
+        elif [[ (($D -le ${#OLD_LINES[@]})) ]]; then
+          # if [[ ${OLD_LINES[D]} == *"No newline at end of file" ]]; then
+          #   echo "\ No newline at end of file";
+          # else 
+          if [[ ${OLD_LINES[D]} != ""  ]]; then
+            echo " ${OLD_LINES[D]}";
+          fi
           ((D++));
           ((A++));
         else 
-          if [[ $D == ${#OLD_LINES[@]} && $LINE == *"No newline at end of file" ]]; then
-            echo "/$LINE";
-          elif [[ $D == ${#OLD_LINES[@]} && $LINE != *"No newline at end of file" ]]; then
-            echo "/ No newline at end of file";          
-          else 
+          # if [[ (($D -ge ${#OLD_LINES[@]})) && $LINE == *"No newline at end of file" ]]; then
+          #   echo "\ No newline at end of file";
+          if [[ $LINE != *"No newline at end of file" ]]; then
+          # #   echo "/ No newline at end of file";      
+          # #   echo "$LINE";
+
+          # else 
             echo "$LINE";
           fi
           ((D++));
@@ -80,7 +87,7 @@ function rewritePatch(){
       fi
     fi
     
-    # if line was not rewritten > rewrite.
+    # if line was not rewritten -> rewrite.
     if [[ $REWRITTEN == "0" ]]; then
       echo "$LINE";
     else 
@@ -100,7 +107,7 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
   if [[ $GIT_OLD_PARENT == "" ]]; then  
     PATCH=`git format-patch -1 --stdout $GIT_COMMIT`;
     git rm -r --force --quiet "./";
-
+  
   # if commit has parent
   else 
     PATCH=`git diff --patch $GIT_OLD_PARENT..$GIT_COMMIT`;
@@ -108,7 +115,7 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
     git checkout $GIT_NEW_PARENT .
   fi 
   git clean --force --quiet;
-  
+
   PATCHED=`echo "$PATCH"|rewritePatch`;
   
  
