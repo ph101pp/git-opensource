@@ -20,7 +20,7 @@ function rewritePatch(){
       FILE="${BASH_REMATCH[2]}";
 
     ## if were on a @@ hunk statement, read hunk from file in current branch
-    elif [[ $LINE =~ (^@@ -([0-9]+),([0-9]+)[^@]*@@) ]]; then
+    elif [[ $LINE =~ (^@@ -([0-9]+)(,([0-9]+))?[^@]*@@) ]]; then
       REPLACE=1; # set flag to start line replacements
       D=1; # start at 1 for new files
       A=1; # start at 1 for new files
@@ -29,7 +29,7 @@ function rewritePatch(){
       if [[ $FILE != "dev/null" ]]; then
         REWRITTEN=1;
         HUNK_START="${BASH_REMATCH[2]}";
-        HUNK_LENGTH="${BASH_REMATCH[3]}";
+        HUNK_LENGTH=$( [ -z "${BASH_REMATCH[4]}" ] && echo "${BASH_REMATCH[2]}" || echo "${BASH_REMATCH[4]}");
         D=0; # start at 0 for modified files
         A=0; # start at 0 for modified files
         OLD_LINES=();
@@ -73,7 +73,7 @@ function rewritePatch(){
 
           # else 
             echo "$LINE";
-          fi
+          fi  
           ((D++));
           ((A++));
         fi
