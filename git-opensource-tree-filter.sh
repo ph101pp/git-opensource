@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 ###############################################################################
 
+
 function rewritePatch(){
   FILE_PATH="dev/null";
   HUNK_START=0;
@@ -119,10 +120,18 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
   # echo "$PATCHED";
 #  echo "$PATCH";
 
- echo "$PATCHED"|git apply --index --whitespace 'nowarn';
+  echo "$PATCHED"|git apply --index --whitespace 'nowarn';
 
-# if merge commit - do nothing
+# if MERGE COMMIT - do nothing
 else 
+
+  # Get modified files aka. merge conflict resolutions
+  # echo `git show -m --diff-filter='M' --patience --format='email'  $GIT_COMMIT` > /tmp/PATCH;
+
+  # Define custom merge tool
+  # git config mergetool.git-opensource.cmd 'echo "test"; echo `cat /tmp/PATCH`';
+  git config mergetool.git-opensource.cmd 'echo "merging......"';
+  git config mergetool.git-opensource.trustExitCode true;
 
   # Get new parent commits
   PARENTS="";
@@ -137,6 +146,19 @@ else
   git checkout $BASE .
   
   # merge with other commits.
-  git merge --no-commit --strategy "recursive" -X "ours" $COMMITS;
+  git merge --no-commit --strategy "recursive" -X "patience" --allow-unrelated-histories $COMMITS;
+  git status;
+
+  git mergetool --tool "git-opensource" --no-prompt;
+
+
+  # PATCHED=`echo "$PATCH"|rewritePatch`;
+  
+ 
+  # echo "$PATCHED";
+  # echo "========"
+  # echo "$PATCH";
+
+  # echo "$PATCHED"|git apply --index --whitespace 'nowarn';
 
 fi
