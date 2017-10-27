@@ -98,16 +98,15 @@ GIT_OLD_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
 
 # if not merge commit - continue
 if [[ $GIT_OLD_PARENT != *" "* ]]; then
+  PATCH=`git format-patch -1 --stdout --function-context $GIT_COMMIT`;
 
   # if root commit
   if [[ $GIT_OLD_PARENT == "" ]]; then  
-    PATCH=`git format-patch -1 --stdout $GIT_COMMIT`;
     git rm -r --force --quiet "./";
 
   # if commit has parent
   else 
     GIT_NEW_PARENT=`grep "$GIT_OLD_PARENT," /tmp/log | cut -d, -f2`;
-    PATCH=`git diff --patch $GIT_OLD_PARENT..$GIT_COMMIT`;
     git reset $GIT_NEW_PARENT --hard --quiet;
     git checkout $GIT_NEW_PARENT .
   fi 
