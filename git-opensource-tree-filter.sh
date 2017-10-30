@@ -1,34 +1,43 @@
 #! /usr/bin/env bash
 ###############################################################################
 
-
 function rewritePatch(){
-  FILE_PATH="dev/null";
+  TYPE="?";
   HUNK_START=0;
-  REPLACE=0;
+  PAST_HUNK_HEADER=0;
+  REMOVED=0;
   D=0; #deletions count
   A=0; #additions count
   OLD_LINES=();
-  REWRITTEN=0;
   while read -r LINE; do 
 
     ## if a new diff starts and were pre @@ hunk statements so no need to replace each line
     if [[ $LINE == "diff"* ]]; then
-      REPLACE=0; # set flag to prevent line replacements
-
+      PAST_HUNK_HEADER=0;
+      TYPE="?";
+      echo "$LINE";
     ## if on the line defining the original file were modifying -> store it
     elif [[ $LINE =~ (^--- [ab\/]/?(.*)) ]]; then
       FILE="${BASH_REMATCH[2]}";
 
+      if [[ $FILE == "dev/null" ]]; then
+        TYPE="ADD";
+      else
+        TYPE="MODIFY";
+      fi
+      echo "$LINE";
+
+    elif [[ $LINE =~ (^+++ \/dev\/null) ]]; then
+      TYPE="REMOVE";
+      REMOVED=0;
+      echo "$LINE";
+
     ## if were on a @@ hunk statement, read hunk from file in current branch
     elif [[ $LINE =~ (^@@ -([0-9]+)(,([0-9]+))?[^@]*@@) ]]; then
-      REPLACE=1; # set flag to start line replacements
-      D=1; # start at 1 for new files
-      A=1; # start at 1 for new files
-
+      PAST_HUNK_HEADER=1;
       # if modified file, read lines form current branch
-      if [[ $FILE != "dev/null" ]]; then
-        REWRITTEN=1;
+      if [[ $TYPE == "MODIFY" || $TYPE == "REMOVE" ]]; then
+        TYPE="MODIFY";
         HUNK_START="${BASH_REMATCH[2]}";
         HUNK_LENGTH=$( [ -z "${BASH_REMATCH[4]}" ] && echo "${BASH_REMATCH[2]}" || echo "${BASH_REMATCH[4]}");
         D=0; # start at 0 for modified files
@@ -44,55 +53,62 @@ function rewritePatch(){
         # echo "$FILE: $HUNK_START, $HUNK_LENGTH";
         # printf '%s\n' "${OLD_LINES[@]}"
         # echo ${#OLD_LINES[@]};
+
+      elif [[ $TYPE == "REMOVE" ]]; then
+        echo "$LINE";
+
+      elif [[ $TYPE == "ADD" ]]; then
+        D=1; # start at 1 for new files
+        A=1; # start at 1 for new files
+        echo "$LINE";
       fi
     # if were past @@ hunk statements we have to replace diff lines
-    elif [[ $REPLACE == 1 ]]; then
-      REWRITTEN=1;
+    elif [[ $PAST_HUNK_HEADER == "1" ]]; then 
+      if [[ $TYPE == "MODIFY" || $TYPE == "ADD" || $TYPE == "REMOVE" ]]; then
 
-      if [[ $LINE =~ (^\+.*) ]]; then  
-        echo "+$(($HUNK_START + $A)): $LINE";
-        ((A++));
-      else
-        if [[ $LINE =~ (^-.*) ]]; then
-          echo "-${OLD_LINES[D]}";
-          ((D++));
-        elif [[ (($D -le ${#OLD_LINES[@]})) ]]; then
-          # if [[ ${OLD_LINES[D]} == *"No newline at end of file" ]]; then
-          #   echo "\ No newline at end of file";
-          # else 
-          if [[ ${OLD_LINES[D]} != ""  ]]; then
-            echo " ${OLD_LINES[D]}";
+        if [[ $LINE =~ (^\+.*) ]]; then  
+          echo "+$(($HUNK_START + $A)): $LINE";
+          ((A++));
+        else
+          if [[ $LINE =~ (^-.*) ]]; then
+            echo "-${OLD_LINES[D]}";
+            ((D++));
+          elif [[ (($D -le ${#OLD_LINES[@]})) ]]; then
+            # if [[ ${OLD_LINES[D]} == *"No newline at end of file" ]]; then
+            #   echo "\ No newline at end of file";
+            # else 
+            if [[ ${OLD_LINES[D]} != ""  ]]; then
+              echo " ${OLD_LINES[D]}";
+            fi
+            ((D++));
+            ((A++));
+          else 
+            # if [[ (($D -ge ${#OLD_LINES[@]})) && $LINE == *"No newline at end of file" ]]; then
+            #   echo "\ No newline at end of file";
+            if [[ $LINE != *"No newline at end of file" ]]; then
+            # #   echo "/ No newline at end of file";      
+            # #   echo "$LINE";
+
+            # else 
+              echo "$LINE";
+            fi  
+            ((D++));
+            ((A++));
           fi
-          ((D++));
-          ((A++));
-        else 
-          # if [[ (($D -ge ${#OLD_LINES[@]})) && $LINE == *"No newline at end of file" ]]; then
-          #   echo "\ No newline at end of file";
-          if [[ $LINE != *"No newline at end of file" ]]; then
-          # #   echo "/ No newline at end of file";      
-          # #   echo "$LINE";
-
-          # else 
-            echo "$LINE";
-          fi  
-          ((D++));
-          ((A++));
         fi
-
+      elif [[ $TYPE == "REMOVE" && $REMOVED == "0" ]]; then
+        REMOVED=1;
+        echo "$LINE";
       fi
-    fi
-    
-    # if line was not rewritten -> rewrite.
-    if [[ $REWRITTEN == "0" ]]; then
+    else
       echo "$LINE";
-    else 
-      REWRITTEN=0;
-    fi  
+    fi
 
   done;
 }
 
-
+###############################################################################
+###############################################################################
 ###############################################################################
 
 GIT_OLD_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
@@ -154,7 +170,6 @@ else
 
   # PATCHED=`echo "$PATCH"|rewritePatch`;
   
- 
   # echo "$PATCHED";
   # echo "========"
   # echo "$PATCH";
