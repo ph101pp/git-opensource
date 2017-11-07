@@ -27,19 +27,18 @@ function rewritePatch(){
       fi
       echo "$LINE";
 
-    elif [[ $LINE =~ (^+++ \/dev\/null) ]]; then
+    elif [[ $LINE =~ (^\+\+\+ \/dev\/null) ]]; then
       TYPE="REMOVE";
-      REMOVED=0;
       echo "$LINE";
 
     ## if were on a @@ hunk statement, read hunk from file in current branch
-    elif [[ $LINE =~ (^@@ -([0-9]+)(,([0-9]+))?[^@]*@@) ]]; then
+    elif [[ $LINE =~ ((^@@ -([0-9]+))(,([0-9]+))?([^@]*@@)) ]]; then
       PAST_HUNK_HEADER=1;
       # if modified file, read lines form current branch
-      if [[ $TYPE == "MODIFY" || $TYPE == "REMOVE" ]]; then
+      if [[ $TYPE == "MODIFY" ]]; then
         TYPE="MODIFY";
-        HUNK_START="${BASH_REMATCH[2]}";
-        HUNK_LENGTH=$( [ -z "${BASH_REMATCH[4]}" ] && echo "${BASH_REMATCH[2]}" || echo "${BASH_REMATCH[4]}");
+        HUNK_START="${BASH_REMATCH[3]}";
+        HUNK_LENGTH=$( [ -z "${BASH_REMATCH[5]}" ] && echo "${BASH_REMATCH[3]}" || echo "${BASH_REMATCH[5]}");
         D=0; # start at 0 for modified files
         A=0; # start at 0 for modified files
         OLD_LINES=();
@@ -55,7 +54,14 @@ function rewritePatch(){
         # echo ${#OLD_LINES[@]};
 
       elif [[ $TYPE == "REMOVE" ]]; then
-        echo "$LINE";
+        FILE_CONTENTS=`cat $FILE`;
+        LINES=`echo "$FILE_CONTENTS" | grep -c ".*"`;
+
+        echo "${BASH_REMATCH[2]},${LINES}${BASH_REMATCH[6]}";
+
+        echo "$FILE_CONTENTS" | while IFS= read -r; do
+          echo "-$REPLY";
+        done;
 
       elif [[ $TYPE == "ADD" ]]; then
         D=1; # start at 1 for new files
@@ -64,7 +70,7 @@ function rewritePatch(){
       fi
     # if were past @@ hunk statements we have to replace diff lines
     elif [[ $PAST_HUNK_HEADER == "1" ]]; then 
-      if [[ $TYPE == "MODIFY" || $TYPE == "ADD" || $TYPE == "REMOVE" ]]; then
+      if [[ $TYPE == "MODIFY" || $TYPE == "ADD" ]]; then
 
         if [[ $LINE =~ (^\+.*) ]]; then  
           echo "+$(($HUNK_START + $A)): $LINE";
@@ -96,9 +102,6 @@ function rewritePatch(){
             ((A++));
           fi
         fi
-      elif [[ $TYPE == "REMOVE" && $REMOVED == "0" ]]; then
-        REMOVED=1;
-        echo "$LINE";
       fi
     else
       echo "$LINE";
@@ -123,7 +126,7 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
 
   # if commit has parent
   else 
-    GIT_NEW_PARENT=`grep "$GIT_OLD_PARENT," /tmp/log | cut -d, -f2`;
+    GIT_NEW_PARENT=`grep "commit,$GIT_OLD_PARENT," /tmp/log | cut -d, -f3`;
     git reset $GIT_NEW_PARENT --hard --quiet;
     git checkout $GIT_NEW_PARENT .
   fi 
@@ -133,10 +136,10 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
   PATCHED=`echo "$PATCH"|rewritePatch`;
   
  
-  # echo "$PATCHED";
+  echo "$PATCHED";
 #  echo "$PATCH";
 
-  echo "$PATCHED"|git apply --index --whitespace 'nowarn';
+  echo "$PATCHED"|git apply --index --whitespace 'nowarn' --unidiff-zero;
 
 # if MERGE COMMIT - do nothing
 else 
@@ -152,7 +155,7 @@ else
   # Get new parent commits
   PARENTS="";
   for COMMIT in $(echo "${GIT_OLD_PARENT}"); do
-    NEW_COMMIT=$(grep "$COMMIT," /tmp/log | cut -d, -f2);
+    NEW_COMMIT=$(grep "commit,$COMMIT," /tmp/log | cut -d, -f3);
     PARENTS="$PARENTS$NEW_COMMIT ";
   done
 
