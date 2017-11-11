@@ -5,7 +5,6 @@ function rewritePatch(){
   TYPE="?";
   HUNK_START=0;
   PAST_HUNK_HEADER=0;
-  REMOVED=0;
   D=0; #deletions count
   A=0; #additions count
   OLD_LINES=();
@@ -14,24 +13,33 @@ function rewritePatch(){
     ## if a new diff starts and were pre @@ hunk statements so no need to replace each line
     if [[ $LINE == "diff"* ]]; then
       PAST_HUNK_HEADER=0;
-      TYPE="?";
+      TYPE="MODIFY";
+      # replace file and folder names with sha of themselves
+      # echo `perl -MDigest::SHA=sha1_hex -pe 's/(?<=\/)[^\/\s\.]+/sha1_hex$&/ge' <<< "$LINE"`;
       echo "$LINE";
+
     ## if on the line defining the original file were modifying -> store it
-    elif [[ $LINE =~ (^--- [ab\/]/?(.*)) ]]; then
-      FILE="${BASH_REMATCH[2]}";
+    elif [[ $LINE =~ (^(---|\+\+\+)( *[ab\/]\/?)([^ ]*)) ]]; then
+      _FILE="${BASH_REMATCH[4]}";
+      MOD="${BASH_REMATCH[2]}";
 
-      if [[ $FILE == "dev/null" ]]; then
+      if [[ $_FILE == "dev/null" ]] && [[ $MOD == "+++" ]]; then
+        TYPE="REMOVE";
+        echo "$LINE";
+
+      elif [[ $_FILE == "dev/null" ]] && [[ $MOD == "---" ]]; then
         TYPE="ADD";
+        echo "$LINE";
       else
-        TYPE="MODIFY";
+        if [[ $MOD == "---" ]]; then
+          FILE=$_FILE;
+        fi
+        # replace file and folder names with sha of themselves
+        echo "$LINE";
+        # echo `perl -MDigest::SHA=sha1_hex -pe 's/(?<=\/)[^\/\s\.]+/sha1_hex$&/ge' <<< "$LINE"`;
       fi
-      echo "$LINE";
 
-    elif [[ $LINE =~ (^\+\+\+ \/dev\/null) ]]; then
-      TYPE="REMOVE";
-      echo "$LINE";
-
-    ## if were on a @@ hunk statement, read hunk from file in current branch
+    ## if we're on a @@ hunk statement, read hunk from file in current branch
     elif [[ $LINE =~ ((^@@ -([0-9]+))(,([0-9]+))?([^@]*@@)) ]]; then
       PAST_HUNK_HEADER=1;
       # if modified file, read lines form current branch
