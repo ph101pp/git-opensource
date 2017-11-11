@@ -49,10 +49,6 @@ function rewritePatch(){
         # update @@ hunk definition
         echo "${BASH_REMATCH[1]}${OLD_LINES[0]}";
 
-        # echo "$FILE: $HUNK_START, $HUNK_LENGTH";
-        # printf '%s\n' "${OLD_LINES[@]}"
-        # echo ${#OLD_LINES[@]};
-
       elif [[ $TYPE == "REMOVE" ]]; then
         FILE_CONTENTS=`cat $FILE`;
         LINES=`echo "$FILE_CONTENTS" | grep -c ".*"`;
@@ -68,6 +64,7 @@ function rewritePatch(){
         A=1; # start at 1 for new files
         echo "$LINE";
       fi
+
     # if were past @@ hunk statements we have to replace diff lines
     elif [[ $PAST_HUNK_HEADER == "1" ]]; then 
       if [[ $TYPE == "MODIFY" || $TYPE == "ADD" ]]; then
@@ -169,14 +166,5 @@ else
   git status;
 
   git mergetool --tool "git-opensource" --no-prompt;
-
-
-  # PATCHED=`echo "$PATCH"|rewritePatch`;
-  
-  # echo "$PATCHED";
-  # echo "========"
-  # echo "$PATCH";
-
-  # echo "$PATCHED"|git apply --index --whitespace 'nowarn';
 
 fi
