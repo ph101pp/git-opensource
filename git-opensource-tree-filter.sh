@@ -163,8 +163,9 @@ else
 
   # Define custom merge tool
   # git config mergetool.git-opensource.cmd 'echo "test"; echo `cat /tmp/PATCH`';
-  git config mergetool.git-opensource.cmd 'echo "merging......"';
+  git config mergetool.git-opensource.cmd '_git-opensource-merge-tool';
   git config mergetool.git-opensource.trustExitCode true;
+  git config mergetool.git-opensource.keepBackup false;
 
   # Get new parent commits
   PARENTS="";
