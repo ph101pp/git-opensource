@@ -87,7 +87,7 @@ function rewritePatch(){
       if [[ $TYPE == "MODIFY" || $TYPE == "ADD" ]]; then
 
         if [[ $LINE =~ (^\+.*) ]]; then  
-          echo "+$(($HUNK_START + $A)): $LINE";
+          echo "+$(($HUNK_START + $A)): $GIT_COMMIT";
           ((A++));
         else
           if [[ $LINE =~ (^-.*) ]]; then
