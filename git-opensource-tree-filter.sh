@@ -132,29 +132,28 @@ GIT_OLD_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
 
 # if not merge commit - continue
 if [[ $GIT_OLD_PARENT != *" "* ]]; then
-  PATCH=`git format-patch -1 --stdout --function-context $GIT_COMMIT`;
 
-  # if root commit
-  if [[ $GIT_OLD_PARENT == "" ]]; then  
+  PATCH=`git format-patch -1 --stdout --no-stat --function-context $GIT_COMMIT`;
+
+  # if commit has parent -> check it out!
+  if [[ $GIT_OLD_PARENT == "" ]]; then 
     git rm -r --force --quiet "./";
-
-  # if commit has parent
-  else 
+  else  
     GIT_NEW_PARENT=`grep "commit,$GIT_OLD_PARENT," /tmp/log | cut -d, -f3`;
     git reset $GIT_NEW_PARENT --hard --quiet;
-    git checkout $GIT_NEW_PARENT .
+    # git checkout $GIT_NEW_PARENT .
   fi 
-
+  
+  # clean working directory
   git clean --force --quiet;
 
   PATCHED=`echo "$PATCH"|rewritePatch`;
   
- 
+
   echo "$PATCHED";
 #  echo "$PATCH";
 
   echo "$PATCHED"|git apply --index --whitespace 'nowarn' --unidiff-zero;
-
 # if MERGE COMMIT - do nothing
 else 
 
@@ -177,7 +176,7 @@ else
   # reset branch to base commit
   IFS=' ' read -r BASE COMMITS <<< "$PARENTS";
   git reset $BASE --hard --quiet;
-  git checkout $BASE .
+  # git checkout $BASE .
   
   # merge with other commits.
   git merge --no-commit --strategy "recursive" -X "patience" --allow-unrelated-histories $COMMITS;
