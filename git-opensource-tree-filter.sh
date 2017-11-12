@@ -1,6 +1,11 @@
 #! /usr/bin/env bash
 ###############################################################################
 
+function renamePath(){
+  echo `perl -MDigest::MD5=md5_hex -pE 's/(?:(?<=^)|(?<=\/))([^\/\s]+(?=(?:\.[^\/\.]+\s)|(?:\/)))/md5_hex$&/ge'`;
+  # echo `perl -MDigest::SHA=sha1_hex -pE 's/(?:(?<=^)|(?<=\/))([^\/\s]+(?=(?:\.[^\/\.]+\s)|(?:\/)))/$&/ge'`;
+}
+###############################################################################
 function rewritePatch(){
   TYPE="?";
   HUNK_START=0;
@@ -15,8 +20,12 @@ function rewritePatch(){
       PAST_HUNK_HEADER=0;
       TYPE="MODIFY";
       # replace file and folder names with sha of themselves
-      # echo `perl -MDigest::SHA=sha1_hex -pe 's/(?<=\/)[^\/\s\.]+/sha1_hex$&/ge' <<< "$LINE"`;
-      echo "$LINE";
+      echo `renamePath <<< "$LINE"`;
+      # echo "$LINE";
+
+
+    elif [[ $LINE =~ (^((rename to)|(rename from)) (.*)) ]]; then
+      echo "${BASH_REMATCH[2]} $(renamePath <<< ${BASH_REMATCH[5]})";
 
     ## if on the line defining the original file were modifying -> store it
     elif [[ $LINE =~ (^(---|\+\+\+)( *[ab\/]\/?)([^ ]*)) ]]; then
@@ -32,11 +41,11 @@ function rewritePatch(){
         echo "$LINE";
       else
         if [[ $MOD == "---" ]]; then
-          FILE=$_FILE;
+          FILE=`renamePath <<< "$_FILE"`;
         fi
         # replace file and folder names with sha of themselves
-        echo "$LINE";
-        # echo `perl -MDigest::SHA=sha1_hex -pe 's/(?<=\/)[^\/\s\.]+/sha1_hex$&/ge' <<< "$LINE"`;
+        # echo "$LINE";
+        echo `renamePath <<< "$LINE"`;
       fi
 
     ## if we're on a @@ hunk statement, read hunk from file in current branch
