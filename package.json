@@ -14,7 +14,8 @@
   },
   "bin": {
     "git-opensource": "git-opensource.sh",
-    "_git-opensource-tree-filter": "git-opensource-tree-filter.sh",
+    "_git-opensource-full-rewrite": "git-opensource-full-rewrite.sh",
+    "_git-opensource-commits": "git-opensource-commits.sh",
     "_git-opensource-merge-tool": "git-opensource-merge-tool.sh"
   }
 }
