@@ -118,13 +118,7 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
 else 
 
   # Get modified files aka. merge conflict resolutions
-  # echo `git show -m --diff-filter='M' --patience --format='email'  $GIT_COMMIT` > /tmp/PATCH;
-
-  # Define custom merge tool
-  # git config mergetool.git-opensource.cmd 'echo "test"; echo `cat /tmp/PATCH`';
-  # git config mergetool.git-opensource.cmd "echo \"$GIT_COMMIT\" > './git-opensource'";
-  # git config mergetool.git-opensource.trustExitCode true;
-  # git config mergetool.git-opensource.keepBackup false;
+  # PATCH `git show -m --diff-filter='M' --patience --format='email'  $GIT_COMMIT`;
 
   # Get new parent commits
   PARENTS="";
@@ -136,15 +130,12 @@ else
   # reset branch to base commit
   IFS=' ' read -r BASE COMMITS <<< "$PARENTS";
   git reset $BASE --hard --quiet;
-  # git checkout $BASE .
   
   # merge with other commits.
   git merge --no-commit --quiet --strategy "recursive" -X "patience" --allow-unrelated-histories $COMMITS;
-  # git status;
 
+  # Remove merge markers
   sed -i '' -E "/^[<=>]{7}.*/d" ./git-opensource
-  # echo "$GIT_COMMIT" > './git-opensource';
-  git add .
-  # git mergetool --tool "git-opensource" --no-prompt;
+  git add ./git-opensource
 
 fi
