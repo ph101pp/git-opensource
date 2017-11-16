@@ -20,7 +20,6 @@ function newFilePatch(){
   PATCH=`cat /dev/stdin`;
   CHANGES=`echo "$PATCH"|grep -E '^ [0-9]+ files? changed'|getLineCounts`;
   ADDS=${CHANGES% *};
-  DELETES=${CHANGES#* };
 
   head -n4 <<< "$PATCH";
 
@@ -33,7 +32,7 @@ index 00000000..b6d4bb7f
 @@ -0,0 +1,$ADDS @@";
 
   for i in $(seq $ADDS); do 
-    echo "+$i: ${GIT_COMMIT:0:8} git-opensource"; 
+    echo "+$i: ${GIT_COMMIT:0:8}"; 
   done
 
   echo "--";
@@ -102,7 +101,7 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
     git rm -r --force --quiet "./";
     PATCHED=`echo "$PATCH"|newFilePatch`;
   else  
-    GIT_NEW_PARENT=`grep "commit,$GIT_OLD_PARENT," /tmp/log | cut -d, -f3`;
+    GIT_NEW_PARENT=`grep "commit,$GIT_OLD_PARENT," /tmp/git-opensource | cut -d, -f3`;
     git reset $GIT_NEW_PARENT --hard --quiet;
     PATCHED=`echo "$PATCH"|updateFilePatch`;
   fi 
@@ -121,7 +120,7 @@ else
   # Get new parent commits
   PARENTS="";
   for COMMIT in $(echo "${GIT_OLD_PARENT}"); do
-    NEW_COMMIT=$(grep "commit,$COMMIT," /tmp/log | cut -d, -f3);
+    NEW_COMMIT=$(grep "commit,$COMMIT," /tmp/git-opensource | cut -d, -f3);
     PARENTS="$PARENTS$NEW_COMMIT ";
   done
 
