@@ -102,7 +102,7 @@ GIT_OLD_PARENT=`git log --pretty=%P -n 1 "$GIT_COMMIT"`;
 # if not merge commit - continue
 if [[ $GIT_OLD_PARENT != *" "* ]]; then
 
-  PATCH=`git format-patch -1 --stdout --function-context $GIT_COMMIT`;
+  PATCH=`git format-patch -1 --stdout --no-renames --function-context $GIT_COMMIT`;
   PATCHED="";
 
   # if commit has parent -> check it out!
