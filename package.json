@@ -5,17 +5,8 @@
     "name": "Philipp Adrian",
     "email": "hello@philippadrian.com"
   },
-  "dependencies": {
-    "commander": "2.11.0",
-    "cross-spawn": "5.1.0",
-    "mkdirp": "0.5.1",
-    "progress": "2.0.0",
-    "split2": "2.2.0"
-  },
   "bin": {
     "git-opensource": "git-opensource.sh",
-    "_git-opensource-full-rewrite": "git-opensource-full-rewrite.sh",
-    "_git-opensource-commits": "git-opensource-commits.sh",
-    "_git-opensource-merge-tool": "git-opensource-merge-tool.sh"
+    "_git-opensource-commits": "git-opensource-commits.sh"
   }
 }
