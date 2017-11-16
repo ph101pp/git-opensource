@@ -129,7 +129,7 @@ else
   git reset $BASE --hard --quiet;
   
   # merge with other commits.
-  git merge --no-commit --quiet --no-stat --strategy "recursive" -X "patience" --allow-unrelated-histories $COMMITS > /dev/null;
+  git merge --quiet --no-stat --strategy "recursive" -X "patience" --allow-unrelated-histories $COMMITS > /dev/null;
 
   # Remove merge markers
   sed -i '' -E "/^[<=>]{7}.*/d" ./git-opensource
