@@ -15,7 +15,7 @@ Usage: git-opensource <OPTIONS> [NEW_BRANCH]
 
     -A | --author-commit
         (flag) If set, author of final squash-commit will be current git user.
-        Note: This throws off stats.
+        Note: Affects stats.
 
     -m | --commit-message [MESSAGE]
         Defines commit message for final squash-commit.
