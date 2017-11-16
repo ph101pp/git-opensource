@@ -2,9 +2,28 @@
 
 ###############################################################################
 
-function printHelp(){
-  echo "help";
-}
+USAGE="
+Usage: git-opensource <OPTIONS> [NEW_BRANCH]
+    
+  NEW_BRANCH
+    Name of new branch that will contain the rewritten commits.
+    Default: git-opensource
+
+  OPTIONS
+    -M | --keep-messages
+        (flag) If set, original commit messages will be preserved.
+
+    -A | --author-commit
+        (flag) If set, author of final squash-commit will be current git user.
+        Note: This throws off stats.
+
+    -m | --commit-message [MESSAGE]
+        Defines commit message for final squash-commit.
+        Default: git-opensource
+
+    -h | --help
+        Displays help.
+";
 
 ###############################################################################
 
@@ -34,13 +53,13 @@ case $key in
     shift # past value
     ;;
     -h|--help)
-    printHelp;
+    echo "$USAGE";
     exit 0;
     shift # past argument
     ;;    
     -*)    # unknown option
-    echo "Unrecognized option: $1";
-    printHelp;
+    echo "Unsupported input: $1" >&2
+    echo "$USAGE" >&2
     exit 1;
     shift # past argument
     ;;
@@ -48,8 +67,8 @@ case $key in
     if [[ $TARGET_BRANCH == "git-opensource" ]]; then
       TARGET_BRANCH=$1;
     else 
-      echo "Unrecognized option: $1";
-      printHelp
+      echo "Unsupported input: $1" >&2
+      echo "$USAGE" >&2
       exit 1;
     fi
     shift # past argument
