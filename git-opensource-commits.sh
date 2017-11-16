@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 
+###############################################################################
 
 function getLineCounts(){
   ADD="0";
@@ -14,6 +15,7 @@ function getLineCounts(){
   done;
   echo "$ADD $DELETE";
 }
+
 ###############################################################################
 
 function newFilePatch(){
@@ -39,6 +41,7 @@ index 00000000..b6d4bb7f
 }
 
 ###############################################################################
+
 function updateFilePatch(){
   PATCH=`cat /dev/stdin`;
   CHANGES=`echo "$PATCH"|grep -E '^ [0-9]+ files? changed'|getLineCounts`;
