@@ -36,15 +36,10 @@ index 00000000..b6d4bb7f
     echo "+$i: ${GIT_COMMIT:0:8} git-opensource"; 
   done
 
-
   echo "--";
-
-
 }
 
 ###############################################################################
-# 1 file changed, 1 insertion(+), 1 deletion(-)
-#([0-9]+) [^\s]+(?:\((\+|-)\))
 function updateFilePatch(){
   PATCH=`cat /dev/stdin`;
   CHANGES=`echo "$PATCH"|grep -E '^ [0-9]+ files? changed'|getLineCounts`;
@@ -54,6 +49,11 @@ function updateFilePatch(){
   DELETES_HEAD="-0,0";
   ADDS_HEAD="+0,0";
 
+  if [[ $ADDS -lt "1" ]] && [[ $DELETES -lt "1" ]]; then
+    ADDS="1";
+    DELETES="1";
+  fi
+  
   if [[ $ADDS -gt "0" ]]; then
     ADDS_HEAD="+1,$ADDS";
   fi
@@ -64,14 +64,6 @@ function updateFilePatch(){
   fi
 
   head -n4 <<< "$PATCH";
-
-  if [[ $ADDS -lt "1" ]] && [[ $DELETES -lt "1" ]]; then
-    ADDS="1";
-    DELETES="1";
-    ADDS_HEAD="+1,$ADDS";
-    DELETES_HEAD="-1,$DELETES";
-    REMOVE=$(head -n $DELETES ./git-opensource);
-  fi
 
   echo "
 diff --git a/git-opensource b/git-opensource
