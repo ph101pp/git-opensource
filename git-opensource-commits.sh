@@ -125,9 +125,6 @@ else
 
   # Get modified files aka. merge conflict resolutions
   PATCH=`git show -m --diff-filter='M' --patience --stat --format='email' $GIT_COMMIT`;
-  PATCHED=`echo "$PATCH"|updateFilePatch`;
-  echo "$PATCH";
-  echo "$PATCHED";
 
   # Get new parent commits
   PARENTS="";
@@ -148,5 +145,11 @@ else
   git add ./git-opensource
 
 
+  PATCHED=`echo "$PATCH"|updateFilePatch`;
+
+  # echo "$PATCH";
+  # echo "$PATCHED";
+  
+  echo "$PATCHED"|git apply --index --whitespace 'nowarn' --unidiff-zero;
 
 fi
