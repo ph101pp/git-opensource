@@ -87,7 +87,7 @@ index 00000000..b6d4bb7f
   fi
 
   for i in $(seq $ADDS); do 
-    echo "+$i: ${GIT_COMMIT:0:8} git-opensource"; 
+    echo "+$i: ${GIT_COMMIT:0:8}"; 
   done
 
   echo "--";
