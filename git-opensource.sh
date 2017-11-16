@@ -29,13 +29,12 @@ rm './git-opensource';
 
 # commit initial state ontop of new history
 git add -A '.'
-GIT_COMMITTER_NAME='git-opensource' GIT_COMMITTER_EMAIL='git-opensource@philippadrian.com' git commit -am 'git-opensource';
+GIT_COMMITTER_NAME='git-opensource' GIT_COMMITTER_EMAIL='git-opensource@philippadrian.com' GIT_AUTHOR_NAME='git-opensource' GIT_AUTHOR_EMAIL='git-opensource@philippadrian.com' git commit -am 'git-opensource';
 
 # clean up temp branch and log file
 # git branch | grep -v "^*" | xargs git branch -df 
 git branch -df "$TEMP_BRANCH";
 rm /tmp/log 2> /dev/null;
-
 
 
 # clean up repository
