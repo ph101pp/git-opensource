@@ -1,14 +1,26 @@
 #! /usr/bin/env bash
+
+
+function getLineCounts(){
+  ADD="0";
+  DELETE="0";
+  while read p; do
+    if [[ $p =~ (([0-9]+) [^ \(]+\(\-\)) ]]; then
+      DELETE=$(( $DELETE + ${BASH_REMATCH[2]} ));
+    fi
+    if [[ $p =~ (([0-9]+) [^ \(]+\(\+\)) ]]; then
+      ADD=$(( $ADD + ${BASH_REMATCH[2]} ));
+    fi
+  done;
+  echo "$ADD $DELETE";
+}
 ###############################################################################
 
 function newFilePatch(){
   PATCH=`cat /dev/stdin`;
-  CHANGES=`grep -E '^ [0-9]+ files? changed' <<< "$PATCH"`;
-  ADDS="0";
-
-  if [[ $CHANGES =~ (([0-9]+) [^ \(]+\(\+\)) ]]; then
-    ADDS=${BASH_REMATCH[2]};
-  fi
+  CHANGES=`echo "$PATCH"|grep -E '^ [0-9]+ files? changed'|getLineCounts`;
+  ADDS=${CHANGES% *};
+  DELETES=${CHANGES#* };
 
   head -n4 <<< "$PATCH";
 
@@ -21,10 +33,12 @@ index 00000000..b6d4bb7f
 @@ -0,0 +1,$ADDS @@";
 
   for i in $(seq $ADDS); do 
-    echo "+$i: $GIT_COMMIT"; 
+    echo "+$i: ${GIT_COMMIT:0:8} git-opensource"; 
   done
 
-  tail -n2 <<< "$PATCH";
+
+  echo "--";
+
 
 }
 
@@ -33,18 +47,10 @@ index 00000000..b6d4bb7f
 #([0-9]+) [^\s]+(?:\((\+|-)\))
 function updateFilePatch(){
   PATCH=`cat /dev/stdin`;
-  CHANGES=`grep -E '^ [0-9]+ files? changed' <<< "$PATCH"`;
-  ADDS="0";
-  DELETES="0";
+  CHANGES=`echo "$PATCH"|grep -E '^ [0-9]+ files? changed'|getLineCounts`;
+  ADDS=${CHANGES% *};
+  DELETES=${CHANGES#* };
   REMOVE="";
-
-  if [[ $CHANGES =~ (([0-9]+) [^ \(]+\(\-\)) ]]; then
-    DELETES=${BASH_REMATCH[2]};
-  fi
-  if [[ $CHANGES =~ (([0-9]+) [^ \(]+\(\+\)) ]]; then
-    ADDS=${BASH_REMATCH[2]};
-  fi
-
   DELETES_HEAD="-0,0";
   ADDS_HEAD="+0,0";
 
@@ -78,10 +84,10 @@ index 00000000..b6d4bb7f
   fi
 
   for i in $(seq $ADDS); do 
-    echo "+$i: $GIT_COMMIT"; 
+    echo "+$i: ${GIT_COMMIT:0:8} git-opensource"; 
   done
 
-  tail -n2 <<< "$PATCH";
+  echo "--";
 
 }
 
@@ -109,7 +115,7 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
   # clean working directory
   git clean --force --quiet;
 
-  echo "$PATCHED";
+  # echo "$PATCHED";
   # echo "$PATCH";
 
   echo "$PATCHED"|git apply --index --whitespace 'nowarn' --unidiff-zero;
@@ -118,7 +124,10 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
 else 
 
   # Get modified files aka. merge conflict resolutions
-  # PATCH `git show -m --diff-filter='M' --patience --format='email'  $GIT_COMMIT`;
+  PATCH=`git show -m --diff-filter='M' --patience --stat --format='email' $GIT_COMMIT`;
+  PATCHED=`echo "$PATCH"|updateFilePatch`;
+  echo "$PATCH";
+  echo "$PATCHED";
 
   # Get new parent commits
   PARENTS="";
@@ -137,5 +146,7 @@ else
   # Remove merge markers
   sed -i '' -E "/^[<=>]{7}.*/d" ./git-opensource
   git add ./git-opensource
+
+
 
 fi
