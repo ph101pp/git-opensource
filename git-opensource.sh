@@ -19,7 +19,7 @@ git commit --allow-empty -m "git-opensource";
 
 # full rewrite
 # git filter-branch --tree-filter '_git-opensource-full-rewrite' --commit-filter 'printf "commit,${GIT_COMMIT}," >>/tmp/log; git commit-tree "$@" | tee -a /tmp/log' -f
-git filter-branch --index-filter '_git-opensource-commits' --commit-filter 'printf "commit,${GIT_COMMIT}," >>/tmp/log; git commit-tree "$@" | tee -a /tmp/log' --msg-filter 'printf "$GIT_COMMIT"' -f
+git filter-branch --original 'refs/git-opensource' --index-filter '_git-opensource-commits' --commit-filter 'printf "commit,${GIT_COMMIT}," >>/tmp/log; git commit-tree "$@" | tee -a /tmp/log' --msg-filter 'printf "$GIT_COMMIT"' -f
 
 # cherry pick previously saved squash commit with initial state
 git cherry-pick --no-commit "$SQUASH_COMMIT";
@@ -31,13 +31,12 @@ rm './git-opensource';
 git add -A '.'
 GIT_COMMITTER_NAME='git-opensource' GIT_COMMITTER_EMAIL='git-opensource@philippadrian.com' GIT_AUTHOR_NAME='git-opensource' GIT_AUTHOR_EMAIL='git-opensource@philippadrian.com' git commit -am 'git-opensource';
 
-# clean up temp branch and log file
+# clean up temp branch, log file and backups
 # git branch | grep -v "^*" | xargs git branch -df 
 git branch -df "$TEMP_BRANCH";
 rm /tmp/log 2> /dev/null;
-
+git for-each-ref --format='delete %(refname)' refs/git-opensource | git update-ref --stdin
 
 # clean up repository
-# git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
 # git reflog expire --expire=now --all
 # git gc --prune=now --aggressive
