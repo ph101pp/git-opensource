@@ -123,9 +123,6 @@ if [[ $GIT_OLD_PARENT != *" "* ]]; then
 # if MERGE COMMIT
 else 
 
-  # Get modified files aka. merge conflict resolutions
-  PATCH=`git show -m --diff-filter='M' --patience --stat --format='email' $GIT_COMMIT`;
-
   # Get new parent commits
   PARENTS="";
   for COMMIT in $(echo "${GIT_OLD_PARENT}"); do
@@ -143,13 +140,5 @@ else
   # Remove merge markers
   sed -i '' -E "/^[<=>]{7}.*/d" ./git-opensource
   git add ./git-opensource
-
-
-  PATCHED=`echo "$PATCH"|updateFilePatch`;
-
-  # echo "$PATCH";
-  # echo "$PATCHED";
-  
-  echo "$PATCHED"|git apply --index --whitespace 'nowarn' --unidiff-zero;
 
 fi
