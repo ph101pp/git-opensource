@@ -67,7 +67,10 @@ function updateFilePatch(){
 
   if [[ $ADDS -lt "1" ]] && [[ $DELETES -lt "1" ]]; then
     ADDS="1";
+    DELETES="1";
     ADDS_HEAD="+1,$ADDS";
+    DELETES_HEAD="-1,$DELETES";
+    REMOVE=$(head -n $DELETES ./git-opensource);
   fi
 
   echo "
