@@ -3,9 +3,9 @@
 ###############################################################################
 
 USAGE="
-Usage: git-opensource <OPTIONS> [NEW_BRANCH]
+Usage: git-opensource <OPTIONS> [TARGET_BRANCH]
     
-  NEW_BRANCH
+  TARGET_BRANCH
     Name of new branch that will contain the rewritten commits.
     Default: git-opensource
 
