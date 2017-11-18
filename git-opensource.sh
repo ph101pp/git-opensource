@@ -11,10 +11,10 @@ Usage: git-opensource <OPTIONS> [TARGET_BRANCH]
 
   OPTIONS
     -M | --keep-messages
-        (flag) If set, original commit messages will be preserved.
+        If set, original commit messages will be preserved.
 
     -A | --author-commit
-        (flag) If set, author of final squash-commit will be current git user.
+        If set, author of final squash-commit will be current git user.
         Note: Affects stats.
 
     -m | --commit-message [MESSAGE]
