@@ -1,6 +1,7 @@
 {
   "name": "git-opensource",
-  "version": "0.0.1",
+  "description": "Clear commit history while preserving contributor statistics.",
+  "version": "0.0.2",
   "author": {
     "name": "Philipp Adrian",
     "email": "hello@philippadrian.com",
