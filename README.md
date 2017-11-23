@@ -1,13 +1,18 @@
 # git-opensource
 
-Before opensourcing, it is common practice in (larger) companies to erase all git history of a projects repository. This ensures that no proprietary information or IP remains anywhere in the commits which could cause serious legal issues or security vulnerabilities. However, this practice also contradicts one of the core fundamentals of opensource culture: __Give credit where credit is due.__
+Before opensourcing, it is common practice in (larger) companies to erase all history from a projects git repository. This ensures that no proprietary information or IP remains anywhere in the commits which could cause legal issues or security vulnerabilities. However, this practice also contradicts one of the core fundamentals of opensource culture: __Give credit where credit is due.__
 
-`git-opensource` is a small utility trying to solve this problem. It rewrittes the current branch to a new target-branch, __erasing all content from the commit history while preserving information about contributors and their statistics__.
+`git-opensource` is a small utility trying to solve this problem. It rewrites the current branch to a new target-branch, __erasing all content from the commit history while preserving information about contributors and their statistics__.
 
 ## Installation
 
-TBD
-
+```bash
+$ npm install -g git-opensource
+```
+or
+```
+curl ...
+```
 ## Usage
 ```bash
 # prepare
