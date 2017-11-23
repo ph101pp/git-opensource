@@ -5,13 +5,8 @@ Before opensourcing, it is common practice in (larger) companies to erase all hi
 `git-opensource` is a small utility trying to solve this problem. It rewrites the current branch to a new target-branch, __erasing all content from the commit history while preserving information about contributors and their statistics__.
 
 ## Installation
-
 ```bash
 $ npm install -g git-opensource
-```
-or
-```
-curl ...
 ```
 ## Usage
 ```bash
