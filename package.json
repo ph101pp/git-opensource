@@ -6,7 +6,6 @@
     "email": "hello@philippadrian.com"
   },
   "bin": {
-    "git-opensource": "git-opensource.sh",
-    "_git-opensource-commits": "git-opensource-commits.sh"
+    "git-opensource": "git-opensource.sh"
   }
 }
