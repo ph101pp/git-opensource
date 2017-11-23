@@ -18,7 +18,7 @@ $ git checkout "branch_to_rewrite" # i.e. "master"
 $ git-opensource <OPTIONS> [TARGET_BRANCH]
 ```
 
-The newly created `TARGET_BRANCH` can now safely be published to the community. It contains the final version of your code only, ensuring that there is ZERO proprietary information or IP hidden in its history. At the same time it still contains all information about contributions to the project.
+The newly created `TARGET_BRANCH` can now safely be published to the community. It only contains the final version of your code, ensuring that there is ZERO proprietary information or IP hidden in its history. At the same time it still contains all information about contributions to the project.
 
 
 ## Options
