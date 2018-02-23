@@ -10,6 +10,9 @@ Usage: git-opensource <OPTIONS> [TARGET_BRANCH]
     Default: git-opensource
 
   OPTIONS
+    -F | --force
+        If set, TARGET_BRANCH will be overwritten if it exists.
+
     -M | --keep-messages
         If set, original commit messages will be preserved.
 
@@ -49,6 +52,7 @@ function main(){
     ###############################################################################
 
     KEEP_MESSAGES=0;
+    FORCE=0;
     AUTHOR_EMAIL="git-opensource@philippadrian.com";
     AUTHOR_NAME="git-opensource";
     MESSAGE="git-opensource";
@@ -61,6 +65,10 @@ function main(){
     case $key in
         -M|--keep-messages)
         KEEP_MESSAGES=1;
+        shift # past argument
+        ;;        
+        -F|--force)
+        FORCE=1;
         shift # past argument
         ;;
         -A|--author-commit)
@@ -107,6 +115,9 @@ function main(){
     rm /tmp/git-opensource 2> /dev/null;
 
     # checkout target branch, create empty commit to discard and start magic
+    if [[ $FORCE == 1 ]]; then 
+      git branch -df $TARGET_BRANCH > /dev/null;
+    fi 
     git checkout -b $TARGET_BRANCH $CURRENT_BRANCH || exit 1;
     git commit --allow-empty -m "git-opensource";
     KEEP_MESSAGES="$KEEP_MESSAGES" SELF="$0" git filter-branch --original 'refs/git-opensource' --index-filter '_GIT_OPENSOURCE_EXECUTE="index-filter" $SELF' --commit-filter '_GIT_OPENSOURCE_EXECUTE="commit-filter" $SELF "$@"' --msg-filter '_GIT_OPENSOURCE_EXECUTE="msg-filter" $SELF' -f;
