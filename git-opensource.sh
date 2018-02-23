@@ -110,6 +110,12 @@ function main(){
     TEMP_BRANCH="temp--$TARGET_BRANCH--git-opensource";
 
     ###############################################################################
+    
+    if [[ $CURRENT_BRANCH == $TARGET_BRANCH ]]; then 
+        echo "Unsupported input: TARGET_BRANCH same as current branch: $CURRENT_BRANCH" >&2
+        echo "$USAGE" >&2
+        exit 1;
+    fi     
 
     ulimit -n 2048;
     rm /tmp/git-opensource 2> /dev/null;
