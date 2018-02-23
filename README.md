@@ -23,6 +23,9 @@ The newly created `TARGET_BRANCH` can now safely be published to the community. 
 
 ## Options
 
+### `-F`, `--force`
+If set, TARGET_BRANCH will be overwritten if it exists.
+
 ### `-M`, `--keep-messages`
 If set, original commit messages will be preserved.
 
