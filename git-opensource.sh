@@ -146,6 +146,7 @@ function main(){
     rm /tmp/git-opensource 2> /dev/null;
     git for-each-ref --format='delete %(refname)' refs/git-opensource | git update-ref --stdin
 
+    git checkout $CURRENT_BRANCH;
 }
 
 ###############################################################################
