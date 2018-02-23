@@ -58,7 +58,7 @@ function main(){
     MESSAGE="git-opensource";
     TARGET_BRANCH="git-opensource";
 
-    POSITIONAL=()
+    POSITIONAL=() 
     while [[ $# -gt 0 ]]
     do
     key="$1"
@@ -116,6 +116,13 @@ function main(){
         echo "$USAGE" >&2
         exit 1;
     fi     
+
+    DIFF=`git diff`;
+    if [[ $DIFF != "" ]]; then 
+        echo "Error: Current branch has uncommited changes." >&2
+        echo "$USAGE" >&2
+        exit 1;
+    fi  
 
     ulimit -n 2048;
     rm /tmp/git-opensource 2> /dev/null;
